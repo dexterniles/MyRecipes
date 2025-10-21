@@ -32,6 +32,9 @@ class RecipeManager {
             if (e.target.id === 'recipeModal') this.closeModal();
         });
 
+        // Scaling controls
+        document.getElementById('applyScaling').addEventListener('click', () => this.applyScaling());
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -70,10 +73,15 @@ class RecipeManager {
             id: this.editingRecipeId || Date.now().toString(),
             name: document.getElementById('recipeName').value.trim(),
             category: document.getElementById('recipeCategory').value,
-            cookingTime: parseInt(document.getElementById('cookingTime').value) || null,
-            servings: parseInt(document.getElementById('servings').value) || null,
+            prepTime: parseInt(document.getElementById('prepTime').value) || null,
+            yield: document.getElementById('yield').value.trim() || null,
+            difficulty: document.getElementById('difficulty').value || null,
+            equipment: document.getElementById('equipment').value.trim() || null,
+            allergens: this.getCheckedValues('allergens'),
+            dietary: this.getCheckedValues('dietary'),
             ingredients: document.getElementById('ingredients').value.trim(),
             instructions: document.getElementById('instructions').value.trim(),
+            costPerPortion: parseFloat(document.getElementById('costPerPortion').value) || null,
             notes: document.getElementById('notes').value.trim(),
             dateCreated: this.editingRecipeId ? this.recipes.find(r => r.id === this.editingRecipeId).dateCreated : new Date().toISOString(),
             dateModified: new Date().toISOString()
@@ -120,8 +128,8 @@ class RecipeManager {
 
     createRecipeCard(recipe) {
         const ingredientsPreview = recipe.ingredients.split('\n').slice(0, 3).join(', ');
-        const timeText = recipe.cookingTime ? `${recipe.cookingTime} min` : 'N/A';
-        const servingsText = recipe.servings ? `${recipe.servings} servings` : 'N/A';
+        const timeText = recipe.prepTime ? `${recipe.prepTime} min` : 'N/A';
+        const yieldText = recipe.yield || 'N/A';
         
         return `
             <div class="recipe-card" data-type="${recipe.category}" onclick="recipeManager.showRecipeDetail('${recipe.id}')">
@@ -133,7 +141,9 @@ class RecipeManager {
                 </div>
                 <div class="recipe-meta">
                     <span><i class="fas fa-clock"></i> ${timeText}</span>
-                    <span><i class="fas fa-users"></i> ${servingsText}</span>
+                    <span><i class="fas fa-weight"></i> ${yieldText}</span>
+                    ${recipe.difficulty ? `<span class="difficulty-${recipe.difficulty}"><i class="fas fa-signal"></i> ${recipe.difficulty}</span>` : ''}
+                    ${recipe.costPerPortion ? `<span><i class="fas fa-dollar-sign"></i> $${recipe.costPerPortion.toFixed(2)}</span>` : ''}
                 </div>
                 <div class="recipe-ingredients">
                     <h4>Ingredients</h4>
@@ -161,9 +171,36 @@ class RecipeManager {
                 <h2>${this.escapeHtml(recipe.name)}</h2>
                 <div class="recipe-meta">
                     <span class="recipe-category recipe-type-${recipe.category}">${this.getRecipeTypeIcon(recipe.category)} ${recipe.category}</span>
-                    ${recipe.cookingTime ? `<span><i class="fas fa-clock"></i> ${recipe.cookingTime} minutes</span>` : ''}
-                    ${recipe.servings ? `<span><i class="fas fa-users"></i> ${recipe.servings} servings</span>` : ''}
+                    ${recipe.prepTime ? `<span><i class="fas fa-clock"></i> ${recipe.prepTime} minutes</span>` : ''}
+                    ${recipe.yield ? `<span><i class="fas fa-weight"></i> ${recipe.yield}</span>` : ''}
+                    ${recipe.difficulty ? `<span class="difficulty-${recipe.difficulty}"><i class="fas fa-signal"></i> ${recipe.difficulty}</span>` : ''}
+                    ${recipe.costPerPortion ? `<span><i class="fas fa-dollar-sign"></i> $${recipe.costPerPortion.toFixed(2)} per portion</span>` : ''}
                 </div>
+                
+                ${recipe.equipment ? `
+                <div class="recipe-section">
+                    <h3><i class="fas fa-tools"></i> Required Equipment</h3>
+                    <p>${this.escapeHtml(recipe.equipment)}</p>
+                </div>
+                ` : ''}
+                
+                ${recipe.allergens && recipe.allergens.length > 0 ? `
+                <div class="recipe-section">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Allergens</h3>
+                    <div class="allergen-tags">
+                        ${recipe.allergens.map(allergen => `<span class="allergen-tag">${allergen}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${recipe.dietary && recipe.dietary.length > 0 ? `
+                <div class="recipe-section">
+                    <h3><i class="fas fa-leaf"></i> Dietary</h3>
+                    <div class="dietary-tags">
+                        ${recipe.dietary.map(diet => `<span class="dietary-tag">${diet}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
                 
                 <div class="recipe-section">
                     <h3><i class="fas fa-list"></i> Ingredients</h3>
@@ -216,11 +253,18 @@ class RecipeManager {
         // Populate form
         document.getElementById('recipeName').value = recipe.name;
         document.getElementById('recipeCategory').value = recipe.category;
-        document.getElementById('cookingTime').value = recipe.cookingTime || '';
-        document.getElementById('servings').value = recipe.servings || '';
+        document.getElementById('prepTime').value = recipe.prepTime || '';
+        document.getElementById('yield').value = recipe.yield || '';
+        document.getElementById('difficulty').value = recipe.difficulty || '';
+        document.getElementById('equipment').value = recipe.equipment || '';
+        document.getElementById('costPerPortion').value = recipe.costPerPortion || '';
         document.getElementById('ingredients').value = recipe.ingredients;
         document.getElementById('instructions').value = recipe.instructions;
         document.getElementById('notes').value = recipe.notes || '';
+        
+        // Populate checkboxes
+        this.populateCheckboxes('allergens', recipe.allergens || []);
+        this.populateCheckboxes('dietary', recipe.dietary || []);
 
         this.showView('addRecipe');
     }
@@ -313,6 +357,57 @@ class RecipeManager {
             notification.style.animation = 'slideOut 0.3s ease-in';
             setTimeout(() => notification.remove(), 300);
         }, 3000);
+    }
+
+    getCheckedValues(groupName) {
+        const checkboxes = document.querySelectorAll(`input[name="${groupName}"]:checked`);
+        return Array.from(checkboxes).map(cb => cb.value);
+    }
+
+    populateCheckboxes(groupName, values) {
+        const checkboxes = document.querySelectorAll(`input[name="${groupName}"]`);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = values.includes(checkbox.value);
+        });
+    }
+
+    applyScaling() {
+        const scaleFactor = parseFloat(document.getElementById('scaleFactor').value);
+        if (scaleFactor === 1) {
+            this.renderRecipes();
+            return;
+        }
+        
+        const scaledRecipes = this.recipes.map(recipe => this.scaleRecipe(recipe, scaleFactor));
+        this.renderFilteredRecipes(scaledRecipes);
+        this.showNotification(`Recipes scaled to ${scaleFactor}x`, 'success');
+    }
+
+    scaleRecipe(recipe, scaleFactor) {
+        const scaledRecipe = { ...recipe };
+        
+        // Scale prep time
+        if (scaledRecipe.prepTime) {
+            scaledRecipe.prepTime = Math.round(scaledRecipe.prepTime * scaleFactor);
+        }
+        
+        // Scale cost per portion
+        if (scaledRecipe.costPerPortion) {
+            scaledRecipe.costPerPortion = scaledRecipe.costPerPortion * scaleFactor;
+        }
+        
+        // Scale ingredients
+        if (scaledRecipe.ingredients) {
+            scaledRecipe.ingredients = scaledRecipe.ingredients.split('\n').map(ingredient => {
+                // Simple scaling for common patterns
+                return ingredient.replace(/(\d+(?:\.\d+)?)\s*([a-zA-Z]+)/g, (match, number, unit) => {
+                    const scaledNumber = (parseFloat(number) * scaleFactor).toFixed(2);
+                    return `${scaledNumber} ${unit}`;
+                });
+            }).join('\n');
+        }
+        
+        return scaledRecipe;
     }
 
     getRecipeTypeIcon(category) {
