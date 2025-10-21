@@ -246,9 +246,16 @@ class RecipeManager {
 
     editRecipe(recipeId) {
         const recipe = this.recipes.find(r => r.id === recipeId);
-        if (!recipe) return;
+        if (!recipe) {
+            console.error('Recipe not found:', recipeId);
+            return;
+        }
 
+        console.log('Editing recipe:', recipe);
         this.editingRecipeId = recipeId;
+        
+        // Clear form first
+        this.clearForm();
         
         // Populate form
         document.getElementById('recipeName').value = recipe.name;
@@ -317,6 +324,11 @@ class RecipeManager {
     clearForm() {
         document.getElementById('recipeForm').reset();
         this.editingRecipeId = null;
+        
+        // Clear all checkboxes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
     }
 
     closeModal() {
