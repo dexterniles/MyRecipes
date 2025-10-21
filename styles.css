@@ -519,16 +519,37 @@ main {
 .difficulty-beginner {
     background: linear-gradient(135deg, #2ecc71, #27ae60);
     color: white;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .difficulty-intermediate {
     background: linear-gradient(135deg, #f39c12, #e67e22);
     color: white;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .difficulty-advanced {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .allergen-tags, .dietary-tags {
