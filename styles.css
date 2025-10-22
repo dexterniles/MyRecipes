@@ -648,6 +648,47 @@ main {
     color: #333;
 }
 
+/* Authentication Styles */
+.auth-container {
+    max-width: 400px;
+    margin: 4rem auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.auth-form p {
+    text-align: center;
+    margin-top: 1rem;
+    color: #666;
+}
+
+.auth-form a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-form a:hover {
+    text-decoration: underline;
+}
+
+.user-info {
+    color: #667eea;
+    font-weight: 600;
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+}
+
 /* Footer */
 footer {
     background: rgba(255, 255, 255, 0.1);

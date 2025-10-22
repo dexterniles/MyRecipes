@@ -1,15 +1,19 @@
 // Recipe Management Application
 class RecipeManager {
     constructor() {
-        this.recipes = this.loadRecipes();
+        this.recipes = [];
         this.currentView = 'recipes';
         this.editingRecipeId = null;
+        this.api = new ApiService();
+        this.auth = new AuthManager();
         this.init();
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
-        this.renderRecipes();
+        if (this.auth.isAuthenticated()) {
+            await this.loadRecipes();
+        }
         this.updateYear();
     }
 
@@ -68,12 +72,10 @@ class RecipeManager {
         this.currentView = viewName;
     }
 
-    handleFormSubmit(e) {
+    async handleFormSubmit(e) {
         e.preventDefault();
         
-        const formData = new FormData(e.target);
-        const recipe = {
-            id: this.editingRecipeId || Date.now().toString(),
+        const recipeData = {
             name: document.getElementById('recipeName').value.trim(),
             category: document.getElementById('recipeCategory').value,
             prepTime: parseInt(document.getElementById('prepTime').value) || null,
@@ -85,32 +87,43 @@ class RecipeManager {
             ingredients: document.getElementById('ingredients').value.trim(),
             instructions: document.getElementById('instructions').value.trim(),
             costPerPortion: parseFloat(document.getElementById('costPerPortion').value) || null,
-            notes: document.getElementById('notes').value.trim(),
-            dateCreated: this.editingRecipeId ? this.recipes.find(r => r.id === this.editingRecipeId).dateCreated : new Date().toISOString(),
-            dateModified: new Date().toISOString()
+            notes: document.getElementById('notes').value.trim()
         };
 
         // Validation
-        if (!recipe.name || !recipe.category || !recipe.ingredients || !recipe.instructions) {
+        if (!recipeData.name || !recipeData.category || !recipeData.ingredients || !recipeData.instructions) {
             this.showNotification('Please fill in all required fields', 'error');
             return;
         }
 
-        if (this.editingRecipeId) {
-            // Update existing recipe
-            const index = this.recipes.findIndex(r => r.id === this.editingRecipeId);
-            this.recipes[index] = recipe;
-            this.showNotification('Recipe updated successfully!', 'success');
-        } else {
-            // Add new recipe
-            this.recipes.unshift(recipe);
-            this.showNotification('Recipe added successfully!', 'success');
-        }
+        try {
+            if (this.editingRecipeId) {
+                // Update existing recipe
+                await this.api.updateRecipe(this.editingRecipeId, recipeData);
+                this.showNotification('Recipe updated successfully!', 'success');
+            } else {
+                // Add new recipe
+                await this.api.createRecipe(recipeData);
+                this.showNotification('Recipe added successfully!', 'success');
+            }
 
-        this.saveRecipes();
-        this.showView('recipes');
-        this.clearForm();
-        this.editingRecipeId = null;
+            await this.loadRecipes();
+            this.showView('recipes');
+            this.clearForm();
+            this.editingRecipeId = null;
+        } catch (error) {
+            this.showNotification(error.message, 'error');
+        }
+    }
+
+    async loadRecipes() {
+        try {
+            this.recipes = await this.api.getRecipes();
+            this.renderRecipes();
+        } catch (error) {
+            console.error('Failed to load recipes:', error);
+            this.showNotification('Failed to load recipes', 'error');
+        }
     }
 
     renderRecipes() {
@@ -283,12 +296,15 @@ class RecipeManager {
         this.showView('addRecipe');
     }
 
-    deleteRecipe(recipeId) {
+    async deleteRecipe(recipeId) {
         if (confirm('Are you sure you want to delete this recipe? This action cannot be undone.')) {
-            this.recipes = this.recipes.filter(r => r.id !== recipeId);
-            this.saveRecipes();
-            this.renderRecipes();
-            this.showNotification('Recipe deleted successfully!', 'success');
+            try {
+                await this.api.deleteRecipe(recipeId);
+                await this.loadRecipes();
+                this.showNotification('Recipe deleted successfully!', 'success');
+            } catch (error) {
+                this.showNotification(error.message, 'error');
+            }
         }
     }
 
@@ -456,24 +472,6 @@ class RecipeManager {
         return div.innerHTML;
     }
 
-    loadRecipes() {
-        try {
-            const stored = localStorage.getItem('myRecipes');
-            return stored ? JSON.parse(stored) : [];
-        } catch (error) {
-            console.error('Error loading recipes:', error);
-            return [];
-        }
-    }
-
-    saveRecipes() {
-        try {
-            localStorage.setItem('myRecipes', JSON.stringify(this.recipes));
-        } catch (error) {
-            console.error('Error saving recipes:', error);
-            this.showNotification('Error saving recipes. Please try again.', 'error');
-        }
-    }
 
     updateYear() {
         document.getElementById('year').textContent = new Date().getFullYear();
@@ -600,4 +598,9 @@ notificationStyles.textContent = `
 document.head.appendChild(notificationStyles);
 
 // Initialize the application
-const recipeManager = new RecipeManager();
+let recipeManager;
+
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', () => {
+    recipeManager = new RecipeManager();
+});
