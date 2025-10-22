@@ -10,7 +10,7 @@ class Recipe {
     async create(recipeData) {
         return new Promise((resolve, reject) => {
             const {
-                userId, name, category, prepTime, yield, difficulty,
+                userId, name, category, prepTime, yield: recipeYield, difficulty,
                 equipment, costPerPortion, ingredients, instructions,
                 notes, allergens = [], dietary = []
             } = recipeData;
@@ -20,7 +20,7 @@ class Recipe {
                     `INSERT INTO recipes (user_id, name, category, prep_time, yield, difficulty, 
                      equipment, cost_per_portion, ingredients, instructions, notes) 
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [userId, name, category, prepTime, yield, difficulty,
+                    [userId, name, category, prepTime, recipeYield, difficulty,
                      equipment, costPerPortion, ingredients, instructions, notes],
                     function(err) {
                         if (err) {
@@ -109,11 +109,11 @@ class Recipe {
     // Update a recipe
     async update(recipeId, userId, recipeData) {
         return new Promise((resolve, reject) => {
-            const {
-                name, category, prepTime, yield, difficulty,
-                equipment, costPerPortion, ingredients, instructions,
-                notes, allergens = [], dietary = []
-            } = recipeData;
+        const {
+            name, category, prepTime, yield: recipeYield, difficulty,
+            equipment, costPerPortion, ingredients, instructions,
+            notes, allergens = [], dietary = []
+        } = recipeData;
 
             this.db.serialize(() => {
                 // Update recipe
@@ -122,7 +122,7 @@ class Recipe {
                      difficulty = ?, equipment = ?, cost_per_portion = ?, ingredients = ?, 
                      instructions = ?, notes = ?, date_modified = CURRENT_TIMESTAMP 
                      WHERE id = ? AND user_id = ?`,
-                    [name, category, prepTime, yield, difficulty, equipment,
+                    [name, category, prepTime, recipeYield, difficulty, equipment,
                      costPerPortion, ingredients, instructions, notes, recipeId, userId],
                     function(err) {
                         if (err) {
