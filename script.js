@@ -18,9 +18,11 @@ class RecipeManager {
         document.getElementById('viewRecipes').addEventListener('click', () => this.showView('recipes'));
         document.getElementById('addRecipe').addEventListener('click', () => this.showView('addRecipe'));
         document.getElementById('cancelBtn').addEventListener('click', () => this.showView('recipes'));
+        document.getElementById('cancelEditBtn').addEventListener('click', () => this.showView('recipes'));
 
         // Form submission
         document.getElementById('recipeForm').addEventListener('submit', (e) => this.handleFormSubmit(e));
+        document.getElementById('editRecipeForm').addEventListener('submit', (e) => this.handleEditFormSubmit(e));
 
         // Search and filter
         document.getElementById('searchInput').addEventListener('input', () => this.filterRecipes());
@@ -39,7 +41,7 @@ class RecipeManager {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeModal();
-                if (this.currentView === 'addRecipe') {
+                if (this.currentView === 'addRecipe' || this.currentView === 'editRecipe') {
                     this.showView('recipes');
                 }
             }
@@ -59,10 +61,10 @@ class RecipeManager {
         } else if (viewName === 'addRecipe') {
             document.getElementById('addRecipeView').classList.add('active');
             document.getElementById('addRecipe').classList.add('active');
-            // Only clear form if we're not editing an existing recipe
-            if (!this.editingRecipeId) {
-                this.clearForm();
-            }
+            this.clearForm();
+        } else if (viewName === 'editRecipe') {
+            document.getElementById('editRecipeView').classList.add('active');
+            // No navigation button for edit view
         }
         
         this.currentView = viewName;
@@ -110,6 +112,43 @@ class RecipeManager {
         this.saveRecipes();
         this.showView('recipes');
         this.clearForm();
+        this.editingRecipeId = null;
+    }
+
+    handleEditFormSubmit(e) {
+        e.preventDefault();
+        
+        const recipe = {
+            id: this.editingRecipeId,
+            name: document.getElementById('editRecipeName').value.trim(),
+            category: document.getElementById('editRecipeCategory').value,
+            prepTime: parseInt(document.getElementById('editPrepTime').value) || null,
+            yield: document.getElementById('editYield').value.trim() || null,
+            difficulty: document.getElementById('editDifficulty').value || null,
+            equipment: document.getElementById('editEquipment').value.trim() || null,
+            allergens: this.getCheckedValues('editAllergens'),
+            dietary: this.getCheckedValues('editDietary'),
+            ingredients: document.getElementById('editIngredients').value.trim(),
+            instructions: document.getElementById('editInstructions').value.trim(),
+            costPerPortion: parseFloat(document.getElementById('editCostPerPortion').value) || null,
+            notes: document.getElementById('editNotes').value.trim(),
+            dateCreated: this.recipes.find(r => r.id === this.editingRecipeId).dateCreated,
+            dateModified: new Date().toISOString()
+        };
+
+        // Validation
+        if (!recipe.name || !recipe.category || !recipe.ingredients || !recipe.instructions) {
+            this.showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Update existing recipe
+        const index = this.recipes.findIndex(r => r.id === this.editingRecipeId);
+        this.recipes[index] = recipe;
+        this.showNotification('Recipe updated successfully!', 'success');
+
+        this.saveRecipes();
+        this.showView('recipes');
         this.editingRecipeId = null;
     }
 
@@ -273,33 +312,26 @@ class RecipeManager {
             return;
         }
 
-        console.log('Editing recipe:', recipe);
         this.editingRecipeId = recipeId;
         
-        // Clear form first
-        this.clearForm();
-        
-        // Populate form
-        document.getElementById('recipeName').value = recipe.name;
-        document.getElementById('recipeCategory').value = recipe.category;
-        document.getElementById('prepTime').value = recipe.prepTime || '';
-        document.getElementById('yield').value = recipe.yield || '';
-        document.getElementById('difficulty').value = recipe.difficulty || '';
-        document.getElementById('equipment').value = recipe.equipment || '';
-        document.getElementById('costPerPortion').value = recipe.costPerPortion || '';
-        document.getElementById('ingredients').value = recipe.ingredients;
-        document.getElementById('instructions').value = recipe.instructions;
-        document.getElementById('notes').value = recipe.notes || '';
+        // Populate edit form
+        document.getElementById('editRecipeName').value = recipe.name;
+        document.getElementById('editRecipeCategory').value = recipe.category;
+        document.getElementById('editPrepTime').value = recipe.prepTime || '';
+        document.getElementById('editYield').value = recipe.yield || '';
+        document.getElementById('editDifficulty').value = recipe.difficulty || '';
+        document.getElementById('editEquipment').value = recipe.equipment || '';
+        document.getElementById('editCostPerPortion').value = recipe.costPerPortion || '';
+        document.getElementById('editIngredients').value = recipe.ingredients;
+        document.getElementById('editInstructions').value = recipe.instructions;
+        document.getElementById('editNotes').value = recipe.notes || '';
         
         // Populate checkboxes
-        this.populateCheckboxes('allergens', recipe.allergens || []);
-        this.populateCheckboxes('dietary', recipe.dietary || []);
+        this.populateCheckboxes('editAllergens', recipe.allergens || []);
+        this.populateCheckboxes('editDietary', recipe.dietary || []);
 
-        // Update form title and button text for editing
-        document.querySelector('#addRecipeView h2').textContent = 'Edit Recipe';
-        document.querySelector('#addRecipeView button[type="submit"]').textContent = 'Update Recipe';
-
-        this.showView('addRecipe');
+        // Show edit form
+        this.showView('editRecipe');
     }
 
     deleteRecipe(recipeId) {

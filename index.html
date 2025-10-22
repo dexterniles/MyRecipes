@@ -202,14 +202,145 @@
             </div>
         </section>
 
-        <!-- Recipe Detail Modal -->
-        <div id="recipeModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <div id="modalContent"></div>
+            <!-- Edit Recipe View -->
+            <section id="editRecipeView" class="view">
+                <div class="container">
+                    <div class="form-container">
+                        <h2>Edit Recipe</h2>
+                        <form id="editRecipeForm">
+                            <div class="form-group">
+                                <label for="editRecipeName">Recipe Name *</label>
+                                <input type="text" id="editRecipeName" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editRecipeCategory">Recipe Type *</label>
+                                <select id="editRecipeCategory" required>
+                                    <option value="">Select Recipe Type</option>
+                                    <option value="mains">Mains</option>
+                                    <option value="appetizers">Appetizers</option>
+                                    <option value="sauces">Sauces</option>
+                                    <option value="sides">Sides</option>
+                                    <option value="desserts">Desserts</option>
+                                    <option value="beverages">Beverages</option>
+                                    <option value="garnishes">Garnishes</option>
+                                    <option value="condiments">Condiments</option>
+                                    <option value="breads">Breads</option>
+                                    <option value="soups">Soups</option>
+                                    <option value="salads">Salads</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editPrepTime">Prep Time (minutes)</label>
+                                <input type="number" id="editPrepTime" min="1">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editYield">Yield</label>
+                                <input type="text" id="editYield" placeholder="e.g., 4 servings, 2 cups, 500g, 1 quart">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editDifficulty">Difficulty Level</label>
+                                <select id="editDifficulty">
+                                    <option value="">Select Difficulty</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editEquipment">Required Equipment</label>
+                                <input type="text" id="editEquipment" placeholder="e.g., stand mixer, food processor, oven">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editAllergens">Allergens</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editAllergens" value="nuts"> Nuts
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editAllergens" value="dairy"> Dairy
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editAllergens" value="gluten"> Gluten
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editAllergens" value="eggs"> Eggs
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editAllergens" value="soy"> Soy
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editAllergens" value="shellfish"> Shellfish
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editDietary">Dietary Restrictions</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editDietary" value="vegetarian"> Vegetarian
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editDietary" value="vegan"> Vegan
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editDietary" value="keto"> Keto
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editDietary" value="paleo"> Paleo
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editDietary" value="halal"> Halal
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="editDietary" value="kosher"> Kosher
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editIngredients">Ingredients *</label>
+                                <textarea id="editIngredients" placeholder="Enter ingredients with quantities, one per line..." required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editInstructions">Instructions *</label>
+                                <textarea id="editInstructions" placeholder="Enter step-by-step instructions..." required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editCostPerPortion">Cost Per Portion ($)</label>
+                                <input type="number" id="editCostPerPortion" step="0.01" min="0" placeholder="0.00">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editNotes">Notes</label>
+                                <textarea id="editNotes" placeholder="Any additional notes or tips..."></textarea>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Update Recipe</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recipe Detail Modal -->
+            <div id="recipeModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="modalContent"></div>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
 
     <footer>
         <div class="container">
