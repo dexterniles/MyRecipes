@@ -59,7 +59,10 @@ class RecipeManager {
         } else if (viewName === 'addRecipe') {
             document.getElementById('addRecipeView').classList.add('active');
             document.getElementById('addRecipe').classList.add('active');
-            this.clearForm();
+            // Only clear form if we're not editing an existing recipe
+            if (!this.editingRecipeId) {
+                this.clearForm();
+            }
         }
         
         this.currentView = viewName;
@@ -273,6 +276,10 @@ class RecipeManager {
         this.populateCheckboxes('allergens', recipe.allergens || []);
         this.populateCheckboxes('dietary', recipe.dietary || []);
 
+        // Update form title and button text for editing
+        document.querySelector('#addRecipeView h2').textContent = 'Edit Recipe';
+        document.querySelector('#addRecipeView button[type="submit"]').textContent = 'Update Recipe';
+
         this.showView('addRecipe');
     }
 
@@ -329,6 +336,10 @@ class RecipeManager {
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = false;
         });
+
+        // Reset form title and button text for new recipes
+        document.querySelector('#addRecipeView h2').textContent = 'Add New Recipe';
+        document.querySelector('#addRecipeView button[type="submit"]').textContent = 'Save Recipe';
     }
 
     closeModal() {
