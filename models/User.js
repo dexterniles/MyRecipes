@@ -1,80 +1,72 @@
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
-const config = require('../config');
+const config = require('../config-vercel');
 
 class User {
     constructor() {
-        this.db = new sqlite3.Database(config.database.path);
+        this.pool = new Pool(config.database);
     }
 
     // Create a new user
     async create(username, email, password) {
-        return new Promise((resolve, reject) => {
-            const hashedPassword = bcrypt.hashSync(password, 10);
-            
-            this.db.run(
-                'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-                [username, email, hashedPassword],
-                function(err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve({ id: this.lastID, username, email });
-                    }
-                }
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const client = await this.pool.connect();
+        
+        try {
+            const result = await client.query(
+                'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email',
+                [username, email, hashedPassword]
             );
-        });
+            
+            return result.rows[0];
+        } finally {
+            client.release();
+        }
     }
 
     // Find user by username
     async findByUsername(username) {
-        return new Promise((resolve, reject) => {
-            this.db.get(
-                'SELECT * FROM users WHERE username = ?',
-                [username],
-                (err, row) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(row);
-                    }
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'SELECT * FROM users WHERE username = $1',
+                [username]
             );
-        });
+            
+            return result.rows[0] || null;
+        } finally {
+            client.release();
+        }
     }
 
     // Find user by email
     async findByEmail(email) {
-        return new Promise((resolve, reject) => {
-            this.db.get(
-                'SELECT * FROM users WHERE email = ?',
-                [email],
-                (err, row) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(row);
-                    }
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'SELECT * FROM users WHERE email = $1',
+                [email]
             );
-        });
+            
+            return result.rows[0] || null;
+        } finally {
+            client.release();
+        }
     }
 
     // Find user by ID
     async findById(id) {
-        return new Promise((resolve, reject) => {
-            this.db.get(
-                'SELECT * FROM users WHERE id = ?',
-                [id],
-                (err, row) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(row);
-                    }
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'SELECT * FROM users WHERE id = $1',
+                [id]
             );
-        });
+            
+            return result.rows[0] || null;
+        } finally {
+            client.release();
+        }
     }
 
     // Verify password
@@ -83,8 +75,8 @@ class User {
     }
 
     // Close database connection
-    close() {
-        this.db.close();
+    async close() {
+        await this.pool.end();
     }
 }
 

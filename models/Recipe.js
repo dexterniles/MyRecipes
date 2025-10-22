@@ -1,218 +1,222 @@
-const sqlite3 = require('sqlite3').verbose();
-const config = require('../config');
+const { Pool } = require('pg');
+const config = require('../config-vercel');
 
 class Recipe {
     constructor() {
-        this.db = new sqlite3.Database(config.database.path);
+        this.pool = new Pool(config.database);
     }
 
     // Create a new recipe
     async create(recipeData) {
-        return new Promise((resolve, reject) => {
-            const {
-                userId, name, category, prepTime, yield: recipeYield, difficulty,
-                equipment, costPerPortion, ingredients, instructions,
-                notes, allergens = [], dietary = []
-            } = recipeData;
+        const {
+            userId, name, category, prepTime, yield: recipeYield, difficulty,
+            equipment, costPerPortion, ingredients, instructions,
+            notes, allergens = [], dietary = []
+        } = recipeData;
 
-            this.db.serialize(() => {
-                this.db.run(
-                    `INSERT INTO recipes (user_id, name, category, prep_time, yield, difficulty, 
-                     equipment, cost_per_portion, ingredients, instructions, notes) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [userId, name, category, prepTime, recipeYield, difficulty,
-                     equipment, costPerPortion, ingredients, instructions, notes],
-                    function(err) {
-                        if (err) {
-                            reject(err);
-                            return;
-                        }
-                        
-                        const recipeId = this.lastID;
-                        
-                        // Insert allergens
-                        if (allergens.length > 0) {
-                            const allergenStmt = this.db.prepare('INSERT INTO allergens (recipe_id, allergen) VALUES (?, ?)');
-                            allergens.forEach(allergen => {
-                                allergenStmt.run(recipeId, allergen);
-                            });
-                            allergenStmt.finalize();
-                        }
-                        
-                        // Insert dietary restrictions
-                        if (dietary.length > 0) {
-                            const dietaryStmt = this.db.prepare('INSERT INTO dietary (recipe_id, dietary) VALUES (?, ?)');
-                            dietary.forEach(diet => {
-                                dietaryStmt.run(recipeId, diet);
-                            });
-                            dietaryStmt.finalize();
-                        }
-                        
-                        resolve({ id: recipeId, ...recipeData });
-                    }
-                );
-            });
-        });
+        const client = await this.pool.connect();
+        try {
+            await client.query('BEGIN');
+            
+            // Insert recipe
+            const recipeResult = await client.query(
+                `INSERT INTO recipes (user_id, name, category, prep_time, yield, difficulty, 
+                 equipment, cost_per_portion, ingredients, instructions, notes) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+                 RETURNING *`,
+                [userId, name, category, prepTime, recipeYield, difficulty,
+                 equipment, costPerPortion, ingredients, instructions, notes]
+            );
+            
+            const recipe = recipeResult.rows[0];
+            
+            // Insert allergens
+            if (allergens.length > 0) {
+                for (const allergen of allergens) {
+                    await client.query(
+                        'INSERT INTO allergens (recipe_id, allergen) VALUES ($1, $2)',
+                        [recipe.id, allergen]
+                    );
+                }
+            }
+            
+            // Insert dietary restrictions
+            if (dietary.length > 0) {
+                for (const diet of dietary) {
+                    await client.query(
+                        'INSERT INTO dietary (recipe_id, dietary) VALUES ($1, $2)',
+                        [recipe.id, diet]
+                    );
+                }
+            }
+            
+            await client.query('COMMIT');
+            return recipe;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     // Get all recipes for a user
     async findByUserId(userId) {
-        return new Promise((resolve, reject) => {
-            this.db.all(
-                'SELECT * FROM recipes WHERE user_id = ? ORDER BY date_created DESC',
-                [userId],
-                async (err, recipes) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    
-                    // Get allergens and dietary for each recipe
-                    for (let recipe of recipes) {
-                        recipe.allergens = await this.getRecipeAllergens(recipe.id);
-                        recipe.dietary = await this.getRecipeDietary(recipe.id);
-                    }
-                    
-                    resolve(recipes);
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'SELECT * FROM recipes WHERE user_id = $1 ORDER BY date_created DESC',
+                [userId]
             );
-        });
+            
+            const recipes = result.rows;
+            
+            // Get allergens and dietary for each recipe
+            for (let recipe of recipes) {
+                recipe.allergens = await this.getRecipeAllergens(recipe.id);
+                recipe.dietary = await this.getRecipeDietary(recipe.id);
+            }
+            
+            return recipes;
+        } finally {
+            client.release();
+        }
     }
 
     // Get a single recipe by ID
     async findById(recipeId, userId) {
-        return new Promise((resolve, reject) => {
-            this.db.get(
-                'SELECT * FROM recipes WHERE id = ? AND user_id = ?',
-                [recipeId, userId],
-                async (err, recipe) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    
-                    if (!recipe) {
-                        resolve(null);
-                        return;
-                    }
-                    
-                    // Get allergens and dietary
-                    recipe.allergens = await this.getRecipeAllergens(recipe.id);
-                    recipe.dietary = await this.getRecipeDietary(recipe.id);
-                    
-                    resolve(recipe);
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'SELECT * FROM recipes WHERE id = $1 AND user_id = $2',
+                [recipeId, userId]
             );
-        });
+            
+            if (result.rows.length === 0) {
+                return null;
+            }
+            
+            const recipe = result.rows[0];
+            
+            // Get allergens and dietary
+            recipe.allergens = await this.getRecipeAllergens(recipe.id);
+            recipe.dietary = await this.getRecipeDietary(recipe.id);
+            
+            return recipe;
+        } finally {
+            client.release();
+        }
     }
 
     // Update a recipe
     async update(recipeId, userId, recipeData) {
-        return new Promise((resolve, reject) => {
         const {
             name, category, prepTime, yield: recipeYield, difficulty,
             equipment, costPerPortion, ingredients, instructions,
             notes, allergens = [], dietary = []
         } = recipeData;
 
-            this.db.serialize(() => {
-                // Update recipe
-                this.db.run(
-                    `UPDATE recipes SET name = ?, category = ?, prep_time = ?, yield = ?, 
-                     difficulty = ?, equipment = ?, cost_per_portion = ?, ingredients = ?, 
-                     instructions = ?, notes = ?, date_modified = CURRENT_TIMESTAMP 
-                     WHERE id = ? AND user_id = ?`,
-                    [name, category, prepTime, recipeYield, difficulty, equipment,
-                     costPerPortion, ingredients, instructions, notes, recipeId, userId],
-                    function(err) {
-                        if (err) {
-                            reject(err);
-                            return;
-                        }
-                        
-                        // Delete existing allergens and dietary
-                        this.db.run('DELETE FROM allergens WHERE recipe_id = ?', [recipeId]);
-                        this.db.run('DELETE FROM dietary WHERE recipe_id = ?', [recipeId]);
-                        
-                        // Insert new allergens
-                        if (allergens.length > 0) {
-                            const allergenStmt = this.db.prepare('INSERT INTO allergens (recipe_id, allergen) VALUES (?, ?)');
-                            allergens.forEach(allergen => {
-                                allergenStmt.run(recipeId, allergen);
-                            });
-                            allergenStmt.finalize();
-                        }
-                        
-                        // Insert new dietary restrictions
-                        if (dietary.length > 0) {
-                            const dietaryStmt = this.db.prepare('INSERT INTO dietary (recipe_id, dietary) VALUES (?, ?)');
-                            dietary.forEach(diet => {
-                                dietaryStmt.run(recipeId, diet);
-                            });
-                            dietaryStmt.finalize();
-                        }
-                        
-                        resolve({ id: recipeId, ...recipeData });
-                    }
-                );
-            });
-        });
+        const client = await this.pool.connect();
+        try {
+            await client.query('BEGIN');
+            
+            // Update recipe
+            const result = await client.query(
+                `UPDATE recipes SET name = $1, category = $2, prep_time = $3, yield = $4, 
+                 difficulty = $5, equipment = $6, cost_per_portion = $7, ingredients = $8, 
+                 instructions = $9, notes = $10, date_modified = CURRENT_TIMESTAMP 
+                 WHERE id = $11 AND user_id = $12 
+                 RETURNING *`,
+                [name, category, prepTime, recipeYield, difficulty, equipment,
+                 costPerPortion, ingredients, instructions, notes, recipeId, userId]
+            );
+            
+            if (result.rows.length === 0) {
+                throw new Error('Recipe not found');
+            }
+            
+            // Delete existing allergens and dietary
+            await client.query('DELETE FROM allergens WHERE recipe_id = $1', [recipeId]);
+            await client.query('DELETE FROM dietary WHERE recipe_id = $1', [recipeId]);
+            
+            // Insert new allergens
+            if (allergens.length > 0) {
+                for (const allergen of allergens) {
+                    await client.query(
+                        'INSERT INTO allergens (recipe_id, allergen) VALUES ($1, $2)',
+                        [recipeId, allergen]
+                    );
+                }
+            }
+            
+            // Insert new dietary restrictions
+            if (dietary.length > 0) {
+                for (const diet of dietary) {
+                    await client.query(
+                        'INSERT INTO dietary (recipe_id, dietary) VALUES ($1, $2)',
+                        [recipeId, diet]
+                    );
+                }
+            }
+            
+            await client.query('COMMIT');
+            return result.rows[0];
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     // Delete a recipe
     async delete(recipeId, userId) {
-        return new Promise((resolve, reject) => {
-            this.db.run(
-                'DELETE FROM recipes WHERE id = ? AND user_id = ?',
-                [recipeId, userId],
-                function(err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve({ deletedRows: this.changes });
-                    }
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'DELETE FROM recipes WHERE id = $1 AND user_id = $2',
+                [recipeId, userId]
             );
-        });
+            
+            return { deletedRows: result.rowCount };
+        } finally {
+            client.release();
+        }
     }
 
     // Get allergens for a recipe
     async getRecipeAllergens(recipeId) {
-        return new Promise((resolve, reject) => {
-            this.db.all(
-                'SELECT allergen FROM allergens WHERE recipe_id = ?',
-                [recipeId],
-                (err, rows) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(rows.map(row => row.allergen));
-                    }
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'SELECT allergen FROM allergens WHERE recipe_id = $1',
+                [recipeId]
             );
-        });
+            
+            return result.rows.map(row => row.allergen);
+        } finally {
+            client.release();
+        }
     }
 
     // Get dietary restrictions for a recipe
     async getRecipeDietary(recipeId) {
-        return new Promise((resolve, reject) => {
-            this.db.all(
-                'SELECT dietary FROM dietary WHERE recipe_id = ?',
-                [recipeId],
-                (err, rows) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(rows.map(row => row.dietary));
-                    }
-                }
+        const client = await this.pool.connect();
+        try {
+            const result = await client.query(
+                'SELECT dietary FROM dietary WHERE recipe_id = $1',
+                [recipeId]
             );
-        });
+            
+            return result.rows.map(row => row.dietary);
+        } finally {
+            client.release();
+        }
     }
 
     // Close database connection
-    close() {
-        this.db.close();
+    async close() {
+        await this.pool.end();
     }
 }
 

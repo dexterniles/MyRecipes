@@ -1,7 +1,12 @@
 module.exports = {
-  // Database Configuration
+  // Database Configuration for Vercel (PostgreSQL)
   database: {
-    path: process.env.DB_PATH || './database/recipes.db'
+    host: process.env.POSTGRES_HOST,
+    port: process.env.POSTGRES_PORT || 5432,
+    database: process.env.POSTGRES_DATABASE,
+    username: process.env.POSTGRES_USERNAME,
+    password: process.env.POSTGRES_PASSWORD,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   },
   
   // JWT Configuration
@@ -13,6 +18,6 @@ module.exports = {
   // Server Configuration
   server: {
     port: process.env.PORT || 3000,
-    corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:8000'
+    corsOrigin: process.env.CORS_ORIGIN || 'https://your-app.vercel.app'
   }
 };

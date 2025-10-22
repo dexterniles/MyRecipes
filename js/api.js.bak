@@ -1,7 +1,7 @@
 // API Service for Recipe Management
 class ApiService {
     constructor() {
-        this.baseURL = 'https://my-recipes-hub-eight.vercel.app';
+        this.baseURL = 'http://localhost:3000/api';
         this.token = localStorage.getItem('authToken');
     }
 
