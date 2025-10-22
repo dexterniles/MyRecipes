@@ -154,7 +154,7 @@ class RecipeManager {
 
     loadRecipes() {
         try {
-            const stored = localStorage.getItem('myRecipes');
+            const stored = localStorage.getItem('prepSync');
             return stored ? JSON.parse(stored) : [];
         } catch (error) {
             console.error('Error loading recipes:', error);
@@ -164,7 +164,7 @@ class RecipeManager {
 
     saveRecipes() {
         try {
-            localStorage.setItem('myRecipes', JSON.stringify(this.recipes));
+            localStorage.setItem('prepSync', JSON.stringify(this.recipes));
         } catch (error) {
             console.error('Error saving recipes:', error);
             this.showNotification('Error saving recipes. Please try again.', 'error');
