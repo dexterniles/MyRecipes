@@ -300,8 +300,18 @@ body {
     flex: 1;
 }
 
+/* Form actions styling */
+.form-actions {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: flex-end;
+    margin-top: var(--space-8);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--gray-200);
+}
+
 /* Ensure cancel buttons are visible */
-#cancelAddBtn, #cancelEditBtn {
+#cancelAddBtn, #cancelEditBtn, #cancelAddBtnBottom, #cancelEditBtnBottom {
     display: inline-flex !important;
     visibility: visible !important;
     opacity: 1 !important;

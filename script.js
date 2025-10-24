@@ -54,6 +54,38 @@ class PrepSyncApp {
             console.error('❌ Cancel Edit button not found');
         }
 
+        // Bottom cancel buttons (next to save buttons)
+        const cancelAddBtnBottom = document.getElementById('cancelAddBtnBottom');
+        const cancelEditBtnBottom = document.getElementById('cancelEditBtnBottom');
+        
+        if (cancelAddBtnBottom) {
+            console.log('✅ Cancel Add Bottom button found and attached');
+            cancelAddBtnBottom.addEventListener('click', () => {
+                console.log('🔄 Cancel Add Bottom button clicked');
+                // Clear the add recipe form
+                document.getElementById('addRecipeForm').reset();
+                this.clearDynamicInputs('addIngredientsContainer');
+                this.clearDynamicInputs('addInstructionsContainer');
+                this.showView('recipeList');
+            });
+        } else {
+            console.error('❌ Cancel Add Bottom button not found');
+        }
+
+        if (cancelEditBtnBottom) {
+            console.log('✅ Cancel Edit Bottom button found and attached');
+            cancelEditBtnBottom.addEventListener('click', () => {
+                console.log('🔄 Cancel Edit Bottom button clicked');
+                // Clear the edit recipe form
+                document.getElementById('editRecipeForm').reset();
+                this.clearDynamicInputs('editIngredientsContainer');
+                this.clearDynamicInputs('editInstructionsContainer');
+                this.showView('recipeList');
+            });
+        } else {
+            console.error('❌ Cancel Edit Bottom button not found');
+        }
+
         // Authentication
         document.getElementById('loginBtn').addEventListener('click', () => {
             this.showAuthModal('login');
