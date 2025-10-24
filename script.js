@@ -120,40 +120,64 @@ class PrepSyncApp {
         }
 
         // Forms
-        document.getElementById('addRecipeForm').addEventListener('submit', (e) => {
-            this.handleAddRecipe(e);
-        });
+        const addRecipeForm = document.getElementById('addRecipeForm');
+        if (addRecipeForm) {
+            addRecipeForm.addEventListener('submit', (e) => {
+                this.handleAddRecipe(e);
+            });
+        }
 
-        document.getElementById('editRecipeForm').addEventListener('submit', (e) => {
-            this.handleEditRecipe(e);
-        });
+        const editRecipeForm = document.getElementById('editRecipeForm');
+        if (editRecipeForm) {
+            editRecipeForm.addEventListener('submit', (e) => {
+                this.handleEditRecipe(e);
+            });
+        }
 
         // Search
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            this.handleSearch(e.target.value);
-        });
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.handleSearch(e.target.value);
+            });
+        }
 
         // Modal
-        document.getElementById('closeModalBtn').addEventListener('click', () => {
-            this.closeModal();
-        });
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                this.closeModal();
+            });
+        }
 
-        document.getElementById('editRecipeBtn').addEventListener('click', () => {
-            this.editRecipe(this.currentRecipe);
-        });
+        const editRecipeBtn = document.getElementById('editRecipeBtn');
+        if (editRecipeBtn) {
+            editRecipeBtn.addEventListener('click', () => {
+                this.editRecipe(this.currentRecipe);
+            });
+        }
 
-        document.getElementById('deleteRecipeBtn').addEventListener('click', () => {
-            this.deleteRecipe(this.currentRecipe.id);
-        });
+        const deleteRecipeBtn = document.getElementById('deleteRecipeBtn');
+        if (deleteRecipeBtn) {
+            deleteRecipeBtn.addEventListener('click', () => {
+                this.deleteRecipe(this.currentRecipe.id);
+            });
+        }
 
         // Authentication forms
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            this.handleLogin(e);
-        });
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                this.handleLogin(e);
+            });
+        }
 
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
-            this.handleRegister(e);
-        });
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', (e) => {
+                this.handleRegister(e);
+            });
+        }
 
         // Auth tabs
         document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -163,21 +187,33 @@ class PrepSyncApp {
         });
 
         // Dynamic ingredient/instruction buttons
-        document.getElementById('addIngredientBtn').addEventListener('click', () => {
-            this.addIngredientField();
-        });
+        const addIngredientBtn = document.getElementById('addIngredientBtn');
+        if (addIngredientBtn) {
+            addIngredientBtn.addEventListener('click', () => {
+                this.addIngredientField();
+            });
+        }
 
-        document.getElementById('addInstructionBtn').addEventListener('click', () => {
-            this.addInstructionField();
-        });
+        const addInstructionBtn = document.getElementById('addInstructionBtn');
+        if (addInstructionBtn) {
+            addInstructionBtn.addEventListener('click', () => {
+                this.addInstructionField();
+            });
+        }
 
-        document.getElementById('editAddIngredientBtn').addEventListener('click', () => {
-            this.addIngredientField('edit');
-        });
+        const editAddIngredientBtn = document.getElementById('editAddIngredientBtn');
+        if (editAddIngredientBtn) {
+            editAddIngredientBtn.addEventListener('click', () => {
+                this.addIngredientField('edit');
+            });
+        }
 
-        document.getElementById('editAddInstructionBtn').addEventListener('click', () => {
-            this.addInstructionField('edit');
-        });
+        const editAddInstructionBtn = document.getElementById('editAddInstructionBtn');
+        if (editAddInstructionBtn) {
+            editAddInstructionBtn.addEventListener('click', () => {
+                this.addInstructionField('edit');
+            });
+        }
 
         // Close modal on outside click
         document.getElementById('recipeModal').addEventListener('click', (e) => {

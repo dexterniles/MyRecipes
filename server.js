@@ -11,18 +11,17 @@ const recipeRoutes = require('./routes/recipes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware
+// Security middleware - relaxed CSP for fonts
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com", "data:"],
+            fontSrc: ["'self'", "https:", "data:", "*"],
             imgSrc: ["'self'", "data:", "https:"],
             connectSrc: ["'self'", "https:"],
-            objectSrc: ["'none'"],
-            upgradeInsecureRequests: []
+            objectSrc: ["'none'"]
         }
     }
 }));
