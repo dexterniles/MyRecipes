@@ -23,10 +23,18 @@ class PrepSyncApp {
         });
 
         document.getElementById('cancelAddBtn').addEventListener('click', () => {
+            // Clear the add recipe form
+            document.getElementById('addRecipeForm').reset();
+            this.clearDynamicInputs('addIngredientsContainer');
+            this.clearDynamicInputs('addInstructionsContainer');
             this.showView('recipeList');
         });
 
         document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            // Clear the edit recipe form
+            document.getElementById('editRecipeForm').reset();
+            this.clearDynamicInputs('editIngredientsContainer');
+            this.clearDynamicInputs('editInstructionsContainer');
             this.showView('recipeList');
         });
 
@@ -258,6 +266,13 @@ class PrepSyncApp {
     closeModal() {
         document.getElementById('recipeModal').classList.remove('active');
         this.currentRecipe = null;
+    }
+
+    clearDynamicInputs(containerId) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = '';
+        }
     }
 
     async editRecipe(recipeId) {
