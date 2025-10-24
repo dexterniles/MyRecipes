@@ -11,17 +11,20 @@ const recipeRoutes = require('./routes/recipes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware - relaxed CSP for fonts
+// Security middleware - completely relaxed CSP for development
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            fontSrc: ["'self'", "https:", "data:", "*"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https:"],
-            objectSrc: ["'none'"]
+            defaultSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "data:", "blob:"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:", "data:"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "data:"],
+            fontSrc: ["'self'", "'unsafe-inline'", "https:", "data:", "*"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "https:", "wss:"],
+            objectSrc: ["'none'"],
+            frameSrc: ["'self'", "https:"],
+            mediaSrc: ["'self'", "https:", "data:"],
+            workerSrc: ["'self'", "blob:"]
         }
     }
 }));

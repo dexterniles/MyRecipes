@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; font-src 'self' 'unsafe-inline' https: data: *; style-src 'self' 'unsafe-inline' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:;">
     <title>PrepSync - Professional Kitchen Recipe Manager</title>
     <link rel="stylesheet" href="styles.css?v=2025-10-24" onerror="console.error('CSS failed to load')">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,7 +170,7 @@
                 </div>
                 
                 <div class="form-actions">
-                    <button type="button" id="cancelAddBtnBottom" class="btn btn-outline btn-lg" onclick="app.cancelAddRecipe()" style="background-color: #dc2626 !important; color: white !important; border: 2px solid #b91c1c !important; padding: 12px 24px !important; font-weight: 600 !important;">
+                    <button type="button" id="cancelAddBtnBottom" class="btn btn-outline btn-lg" style="background-color: #dc2626 !important; color: white !important; border: 2px solid #b91c1c !important; padding: 12px 24px !important; font-weight: 600 !important;">
                         <i class="fas fa-times"></i>
                         Cancel
                     </button>
@@ -285,7 +286,7 @@
                 </div>
                 
                 <div class="form-actions">
-                    <button type="button" id="cancelEditBtnBottom" class="btn btn-outline btn-lg" onclick="app.cancelEditRecipe()" style="background-color: #dc2626 !important; color: white !important; border: 2px solid #b91c1c !important; padding: 12px 24px !important; font-weight: 600 !important;">
+                    <button type="button" id="cancelEditBtnBottom" class="btn btn-outline btn-lg" style="background-color: #dc2626 !important; color: white !important; border: 2px solid #b91c1c !important; padding: 12px 24px !important; font-weight: 600 !important;">
                         <i class="fas fa-times"></i>
                         Cancel
                     </button>
