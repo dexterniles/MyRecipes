@@ -18,9 +18,14 @@ class PrepSyncApp {
 
     setupEventListeners() {
         // Navigation buttons
-        document.getElementById('addRecipeBtn').addEventListener('click', () => {
-            this.showView('addRecipe');
-        });
+        const addRecipeBtn = document.getElementById('addRecipeBtn');
+        if (addRecipeBtn) {
+            addRecipeBtn.addEventListener('click', () => {
+                this.showView('addRecipe');
+            });
+        } else {
+            console.error('❌ Add Recipe button not found');
+        }
 
         // Top cancel buttons removed - only using bottom cancel buttons now
 
@@ -87,17 +92,32 @@ class PrepSyncApp {
         }, 100);
 
         // Authentication
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            this.showAuthModal('login');
-        });
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                this.showAuthModal('login');
+            });
+        } else {
+            console.error('❌ Login button not found');
+        }
 
-        document.getElementById('registerBtn').addEventListener('click', () => {
-            this.showAuthModal('register');
-        });
+        const registerBtn = document.getElementById('registerBtn');
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => {
+                this.showAuthModal('register');
+            });
+        } else {
+            console.error('❌ Register button not found');
+        }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            this.logout();
-        });
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+        } else {
+            console.error('❌ Logout button not found');
+        }
 
         // Forms
         document.getElementById('addRecipeForm').addEventListener('submit', (e) => {
