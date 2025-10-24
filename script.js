@@ -17,12 +17,16 @@ class PrepSyncApp {
     }
 
     setupEventListeners() {
+        console.log('🔧 Setting up event listeners...');
+        
         // Navigation buttons
         const addRecipeBtn = document.getElementById('addRecipeBtn');
+        console.log('addRecipeBtn:', addRecipeBtn);
         if (addRecipeBtn) {
             addRecipeBtn.addEventListener('click', () => {
                 this.showView('addRecipe');
             });
+            console.log('✅ Add Recipe button event listener attached');
         } else {
             console.error('❌ Add Recipe button not found');
         }
@@ -180,11 +184,14 @@ class PrepSyncApp {
         }
 
         // Auth tabs
-        document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                this.switchAuthTab(e.target.dataset.tab);
+        const authTabs = document.querySelectorAll('.auth-tab');
+        if (authTabs.length > 0) {
+            authTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    this.switchAuthTab(e.target.dataset.tab);
+                });
             });
-        });
+        }
 
         // Dynamic ingredient/instruction buttons
         const addIngredientBtn = document.getElementById('addIngredientBtn');
@@ -216,18 +223,24 @@ class PrepSyncApp {
         }
 
         // Close modal on outside click
-        document.getElementById('recipeModal').addEventListener('click', (e) => {
-            if (e.target.id === 'recipeModal') {
-                this.closeModal();
-            }
-        });
+        const recipeModal = document.getElementById('recipeModal');
+        if (recipeModal) {
+            recipeModal.addEventListener('click', (e) => {
+                if (e.target.id === 'recipeModal') {
+                    this.closeModal();
+                }
+            });
+        }
 
         // Close auth modal on outside click
-        document.getElementById('authModal').addEventListener('click', (e) => {
-            if (e.target.id === 'authModal') {
-                this.closeAuthModal();
-            }
-        });
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.addEventListener('click', (e) => {
+                if (e.target.id === 'authModal') {
+                    this.closeAuthModal();
+                }
+            });
+        }
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
