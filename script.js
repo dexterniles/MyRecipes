@@ -17,19 +17,20 @@ class PrepSyncApp {
     }
 
     setupEventListeners() {
-        console.log('🔧 Setting up event listeners...');
-        
-        // Navigation buttons
-        const addRecipeBtn = document.getElementById('addRecipeBtn');
-        console.log('addRecipeBtn:', addRecipeBtn);
-        if (addRecipeBtn) {
-            addRecipeBtn.addEventListener('click', () => {
-                this.showView('addRecipe');
-            });
-            console.log('✅ Add Recipe button event listener attached');
-        } else {
-            console.error('❌ Add Recipe button not found');
-        }
+        try {
+            console.log('🔧 Setting up event listeners...');
+            
+            // Navigation buttons
+            const addRecipeBtn = document.getElementById('addRecipeBtn');
+            console.log('addRecipeBtn:', addRecipeBtn);
+            if (addRecipeBtn) {
+                addRecipeBtn.addEventListener('click', () => {
+                    this.showView('addRecipe');
+                });
+                console.log('✅ Add Recipe button event listener attached');
+            } else {
+                console.error('❌ Add Recipe button not found');
+            }
 
         // Top cancel buttons removed - only using bottom cancel buttons now
 
@@ -249,6 +250,11 @@ class PrepSyncApp {
                 this.closeAuthModal();
             }
         });
+        
+        } catch (error) {
+            console.error('❌ Error in setupEventListeners:', error);
+            console.error('Error stack:', error.stack);
+        }
     }
 
     showView(viewName) {
@@ -777,6 +783,88 @@ function removeInstruction(button) {
         document.querySelectorAll('.instruction-item .step-number').forEach((span, index) => {
             span.textContent = index + 1;
         });
+    }
+}
+
+// Global cancel functions (don't rely on class instance)
+function cancelAddRecipe() {
+    console.log('🔄 Cancel Add Recipe function called');
+    try {
+        // Clear the add recipe form
+        const form = document.getElementById('addRecipeForm');
+        if (form) {
+            form.reset();
+            console.log('✅ Add form reset');
+        }
+        
+        // Clear dynamic inputs
+        const ingredientsContainer = document.getElementById('addIngredientsContainer');
+        if (ingredientsContainer) {
+            ingredientsContainer.innerHTML = '';
+        }
+        
+        const instructionsContainer = document.getElementById('addInstructionsContainer');
+        if (instructionsContainer) {
+            instructionsContainer.innerHTML = '';
+        }
+        
+        // Return to recipe list
+        showRecipeListView();
+        console.log('✅ Returned to recipe list from add form');
+    } catch (error) {
+        console.error('❌ Error during add cancel process:', error);
+    }
+}
+
+function cancelEditRecipe() {
+    console.log('🔄 Cancel Edit Recipe function called');
+    try {
+        // Clear the edit recipe form
+        const form = document.getElementById('editRecipeForm');
+        if (form) {
+            form.reset();
+            console.log('✅ Edit form reset');
+        }
+        
+        // Clear dynamic inputs
+        const ingredientsContainer = document.getElementById('editIngredientsContainer');
+        if (ingredientsContainer) {
+            ingredientsContainer.innerHTML = '';
+        }
+        
+        const instructionsContainer = document.getElementById('editInstructionsContainer');
+        if (instructionsContainer) {
+            instructionsContainer.innerHTML = '';
+        }
+        
+        // Return to recipe list
+        showRecipeListView();
+        console.log('✅ Returned to recipe list from edit form');
+    } catch (error) {
+        console.error('❌ Error during edit cancel process:', error);
+    }
+}
+
+function showRecipeListView() {
+    // Hide all views
+    document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active');
+    });
+    
+    // Show recipe list view
+    const recipeListView = document.getElementById('recipeListView');
+    if (recipeListView) {
+        recipeListView.classList.add('active');
+    }
+    
+    // Update navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const recipeListBtn = document.getElementById('recipeListBtn');
+    if (recipeListBtn) {
+        recipeListBtn.classList.add('active');
     }
 }
 
