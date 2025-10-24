@@ -304,25 +304,39 @@ body {
 .form-actions {
     display: flex;
     gap: var(--space-4);
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     margin-top: var(--space-8);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--gray-200);
+    padding: var(--space-6);
+    border-top: 2px solid var(--gray-200);
+    background-color: var(--gray-50);
+    border-radius: var(--radius-md);
 }
 
-/* Ensure cancel buttons are visible */
-#cancelAddBtn, #cancelEditBtn, #cancelAddBtnBottom, #cancelEditBtnBottom {
+/* Cancel buttons - high contrast styling */
+#cancelAddBtnBottom, #cancelEditBtnBottom {
     display: inline-flex !important;
     visibility: visible !important;
     opacity: 1 !important;
     z-index: 10 !important;
-    background-color: #ff6b6b !important;
+    background-color: #dc2626 !important;
     color: white !important;
-    border: 2px solid #ff5252 !important;
-    padding: 8px 16px !important;
-    border-radius: 6px !important;
+    border: 2px solid #b91c1c !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    font-size: 16px !important;
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3) !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+#cancelAddBtnBottom:hover, #cancelEditBtnBottom:hover {
+    background-color: #b91c1c !important;
+    border-color: #991b1b !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 12px rgba(220, 38, 38, 0.4) !important;
 }
 
 .view-actions {

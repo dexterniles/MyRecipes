@@ -22,37 +22,7 @@ class PrepSyncApp {
             this.showView('addRecipe');
         });
 
-        // Cancel button event listeners
-        const cancelAddBtn = document.getElementById('cancelAddBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        
-        if (cancelAddBtn) {
-            console.log('✅ Cancel Add button found and attached');
-            cancelAddBtn.addEventListener('click', () => {
-                console.log('🔄 Cancel Add button clicked');
-                // Clear the add recipe form
-                document.getElementById('addRecipeForm').reset();
-                this.clearDynamicInputs('addIngredientsContainer');
-                this.clearDynamicInputs('addInstructionsContainer');
-                this.showView('recipeList');
-            });
-        } else {
-            console.error('❌ Cancel Add button not found');
-        }
-
-        if (cancelEditBtn) {
-            console.log('✅ Cancel Edit button found and attached');
-            cancelEditBtn.addEventListener('click', () => {
-                console.log('🔄 Cancel Edit button clicked');
-                // Clear the edit recipe form
-                document.getElementById('editRecipeForm').reset();
-                this.clearDynamicInputs('editIngredientsContainer');
-                this.clearDynamicInputs('editInstructionsContainer');
-                this.showView('recipeList');
-            });
-        } else {
-            console.error('❌ Cancel Edit button not found');
-        }
+        // Top cancel buttons removed - only using bottom cancel buttons now
 
         // Bottom cancel buttons (next to save buttons)
         const cancelAddBtnBottom = document.getElementById('cancelAddBtnBottom');
