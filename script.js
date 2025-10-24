@@ -28,9 +28,15 @@ class PrepSyncApp {
         const cancelAddBtnBottom = document.getElementById('cancelAddBtnBottom');
         const cancelEditBtnBottom = document.getElementById('cancelEditBtnBottom');
         
+        console.log('🔍 Looking for cancel buttons...');
+        console.log('cancelAddBtnBottom:', cancelAddBtnBottom);
+        console.log('cancelEditBtnBottom:', cancelEditBtnBottom);
+        
         if (cancelAddBtnBottom) {
             console.log('✅ Cancel Add Bottom button found and attached');
-            cancelAddBtnBottom.addEventListener('click', () => {
+            cancelAddBtnBottom.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 console.log('🔄 Cancel Add Bottom button clicked');
                 // Clear the add recipe form
                 document.getElementById('addRecipeForm').reset();
@@ -44,7 +50,9 @@ class PrepSyncApp {
 
         if (cancelEditBtnBottom) {
             console.log('✅ Cancel Edit Bottom button found and attached');
-            cancelEditBtnBottom.addEventListener('click', () => {
+            cancelEditBtnBottom.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 console.log('🔄 Cancel Edit Bottom button clicked');
                 // Clear the edit recipe form
                 document.getElementById('editRecipeForm').reset();

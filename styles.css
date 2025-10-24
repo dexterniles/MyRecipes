@@ -314,12 +314,13 @@ body {
 }
 
 /* Cancel buttons - high contrast styling */
-#cancelAddBtnBottom, #cancelEditBtnBottom {
+button#cancelAddBtnBottom, button#cancelEditBtnBottom {
     display: inline-flex !important;
     visibility: visible !important;
     opacity: 1 !important;
     z-index: 10 !important;
     background-color: #dc2626 !important;
+    background: #dc2626 !important;
     color: white !important;
     border: 2px solid #b91c1c !important;
     padding: 12px 24px !important;
@@ -330,13 +331,21 @@ body {
     transition: all 0.2s ease !important;
     text-decoration: none !important;
     cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
-#cancelAddBtnBottom:hover, #cancelEditBtnBottom:hover {
+button#cancelAddBtnBottom:hover, button#cancelEditBtnBottom:hover {
     background-color: #b91c1c !important;
+    background: #b91c1c !important;
     border-color: #991b1b !important;
     transform: translateY(-1px) !important;
     box-shadow: 0 6px 12px rgba(220, 38, 38, 0.4) !important;
+}
+
+/* Override any conflicting styles */
+button#cancelAddBtnBottom *, button#cancelEditBtnBottom * {
+    color: white !important;
 }
 
 .view-actions {
