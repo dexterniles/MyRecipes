@@ -24,45 +24,67 @@ class PrepSyncApp {
 
         // Top cancel buttons removed - only using bottom cancel buttons now
 
-        // Bottom cancel buttons (next to save buttons)
-        const cancelAddBtnBottom = document.getElementById('cancelAddBtnBottom');
-        const cancelEditBtnBottom = document.getElementById('cancelEditBtnBottom');
-        
-        console.log('🔍 Looking for cancel buttons...');
-        console.log('cancelAddBtnBottom:', cancelAddBtnBottom);
-        console.log('cancelEditBtnBottom:', cancelEditBtnBottom);
-        
-        if (cancelAddBtnBottom) {
-            console.log('✅ Cancel Add Bottom button found and attached');
-            cancelAddBtnBottom.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔄 Cancel Add Bottom button clicked');
-                // Clear the add recipe form
-                document.getElementById('addRecipeForm').reset();
-                this.clearDynamicInputs('addIngredientsContainer');
-                this.clearDynamicInputs('addInstructionsContainer');
-                this.showView('recipeList');
-            });
-        } else {
-            console.error('❌ Cancel Add Bottom button not found');
-        }
+        // Bottom cancel buttons (next to save buttons) - using setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            const cancelAddBtnBottom = document.getElementById('cancelAddBtnBottom');
+            const cancelEditBtnBottom = document.getElementById('cancelEditBtnBottom');
+            
+            console.log('🔍 Looking for cancel buttons...');
+            console.log('cancelAddBtnBottom:', cancelAddBtnBottom);
+            console.log('cancelEditBtnBottom:', cancelEditBtnBottom);
+            
+            if (cancelAddBtnBottom) {
+                console.log('✅ Cancel Add Bottom button found and attached');
+                cancelAddBtnBottom.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔄 Cancel Add Bottom button clicked - starting cancel process');
+                    try {
+                        // Clear the add recipe form
+                        const form = document.getElementById('addRecipeForm');
+                        if (form) {
+                            form.reset();
+                            console.log('✅ Form reset');
+                        }
+                        this.clearDynamicInputs('addIngredientsContainer');
+                        this.clearDynamicInputs('addInstructionsContainer');
+                        console.log('✅ Dynamic inputs cleared');
+                        this.showView('recipeList');
+                        console.log('✅ Returned to recipe list view');
+                    } catch (error) {
+                        console.error('❌ Error during cancel process:', error);
+                    }
+                });
+            } else {
+                console.error('❌ Cancel Add Bottom button not found');
+            }
 
-        if (cancelEditBtnBottom) {
-            console.log('✅ Cancel Edit Bottom button found and attached');
-            cancelEditBtnBottom.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('🔄 Cancel Edit Bottom button clicked');
-                // Clear the edit recipe form
-                document.getElementById('editRecipeForm').reset();
-                this.clearDynamicInputs('editIngredientsContainer');
-                this.clearDynamicInputs('editInstructionsContainer');
-                this.showView('recipeList');
-            });
-        } else {
-            console.error('❌ Cancel Edit Bottom button not found');
-        }
+            if (cancelEditBtnBottom) {
+                console.log('✅ Cancel Edit Bottom button found and attached');
+                cancelEditBtnBottom.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔄 Cancel Edit Bottom button clicked - starting cancel process');
+                    try {
+                        // Clear the edit recipe form
+                        const form = document.getElementById('editRecipeForm');
+                        if (form) {
+                            form.reset();
+                            console.log('✅ Form reset');
+                        }
+                        this.clearDynamicInputs('editIngredientsContainer');
+                        this.clearDynamicInputs('editInstructionsContainer');
+                        console.log('✅ Dynamic inputs cleared');
+                        this.showView('recipeList');
+                        console.log('✅ Returned to recipe list view');
+                    } catch (error) {
+                        console.error('❌ Error during cancel process:', error);
+                    }
+                });
+            } else {
+                console.error('❌ Cancel Edit Bottom button not found');
+            }
+        }, 100);
 
         // Authentication
         document.getElementById('loginBtn').addEventListener('click', () => {
@@ -298,6 +320,45 @@ class PrepSyncApp {
         const container = document.getElementById(containerId);
         if (container) {
             container.innerHTML = '';
+        }
+    }
+
+    // Cancel methods for onclick handlers
+    cancelAddRecipe() {
+        console.log('🔄 Cancel Add Recipe method called');
+        try {
+            // Clear the add recipe form
+            const form = document.getElementById('addRecipeForm');
+            if (form) {
+                form.reset();
+                console.log('✅ Add form reset');
+            }
+            this.clearDynamicInputs('addIngredientsContainer');
+            this.clearDynamicInputs('addInstructionsContainer');
+            console.log('✅ Add form dynamic inputs cleared');
+            this.showView('recipeList');
+            console.log('✅ Returned to recipe list from add form');
+        } catch (error) {
+            console.error('❌ Error during add cancel process:', error);
+        }
+    }
+
+    cancelEditRecipe() {
+        console.log('🔄 Cancel Edit Recipe method called');
+        try {
+            // Clear the edit recipe form
+            const form = document.getElementById('editRecipeForm');
+            if (form) {
+                form.reset();
+                console.log('✅ Edit form reset');
+            }
+            this.clearDynamicInputs('editIngredientsContainer');
+            this.clearDynamicInputs('editInstructionsContainer');
+            console.log('✅ Edit form dynamic inputs cleared');
+            this.showView('recipeList');
+            console.log('✅ Returned to recipe list from edit form');
+        } catch (error) {
+            console.error('❌ Error during edit cancel process:', error);
         }
     }
 
