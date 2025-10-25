@@ -8,7 +8,11 @@
     "dev": "nodemon server.js",
     "test-db": "node test-db.js",
     "init-db": "node init-db.js",
-    "test-api": "node test-api.js"
+    "test-api": "node test-api.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write '**/*.{js,json,md}'",
+    "format:check": "prettier --check '**/*.{js,json,md}'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -24,6 +28,9 @@
     "validator": "^13.11.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.6.2"
   }
 }

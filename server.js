@@ -191,6 +191,30 @@ app.get('/js/password-validator.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'js', 'password-validator.js'));
 });
 
+app.get('/js/error-handler.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.sendFile(path.join(__dirname, 'js', 'error-handler.js'));
+});
+
+app.get('/js/logger.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.sendFile(path.join(__dirname, 'js', 'logger.js'));
+});
+
+app.get('/js/cache.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.sendFile(path.join(__dirname, 'js', 'cache.js'));
+});
+
+app.get('/js/pagination.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.sendFile(path.join(__dirname, 'js', 'pagination.js'));
+});
+
 // Serve main HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
