@@ -28,15 +28,18 @@ async function getClient() {
 
 // Execute a query with error handling
 async function query(text, params) {
-    const client = await getClient();
+    let client = null;
     try {
+        client = await getClient();
         const result = await client.query(text, params);
         return result;
     } catch (error) {
         console.error('Database query error:', error);
         throw error;
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }
 

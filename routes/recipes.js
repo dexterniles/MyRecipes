@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const auth = require('../auth');
+const auth = require('../lib/auth');
 const { validate, recipeSchema } = require('../validation');
 
 // Get all recipes for the authenticated user

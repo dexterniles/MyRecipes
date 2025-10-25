@@ -2,11 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const validateEnv = require('./lib/validate-env');
 const db = require('./db');
 const authRoutes = require('./routes/auth');
 const recipeRoutes = require('./routes/recipes');
+
+// Validate environment variables before starting
+validateEnv();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,6 +34,32 @@ app.use(helmet({
     }
 }));
 
+// Rate limiting - protect against brute force attacks
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { success: false, message: 'Too many requests, please try again later' },
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit login attempts
+    message: { success: false, message: 'Too many login attempts, please try again later' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // Limit registration attempts
+    message: { success: false, message: 'Too many registration attempts, please try again later' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // CORS configuration
 app.use(cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
@@ -39,7 +70,10 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// API Routes
+// API Routes with rate limiting
+app.use('/api', apiLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', registerLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/recipes', recipeRoutes);
 
@@ -114,6 +148,12 @@ app.get('/js/auth.js', (req, res) => {
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=31536000');
     res.sendFile(path.join(__dirname, 'js', 'auth.js'));
+});
+
+app.get('/js/sanitize.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.sendFile(path.join(__dirname, 'js', 'sanitize.js'));
 });
 
 // Serve main HTML file
