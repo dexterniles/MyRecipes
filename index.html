@@ -416,8 +416,14 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- Scripts -->
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="script.js"></script>
+    <script src="js/api.js" onerror="console.error('Failed to load js/api.js')"></script>
+    <script src="js/auth.js" onerror="console.error('Failed to load js/auth.js')"></script>
+    <script src="script.js" onerror="console.error('Failed to load script.js')"></script>
+    <script>
+        // Debug: Check if scripts loaded
+        console.log('Scripts loaded check:');
+        console.log('apiService:', typeof apiService, apiService);
+        console.log('authManager:', typeof authManager, authManager);
+    </script>
 </body>
 </html>
