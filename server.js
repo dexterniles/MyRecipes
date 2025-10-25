@@ -16,7 +16,7 @@ validateEnv();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware - completely relaxed CSP for development
+// Security middleware - with enhanced security headers
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -30,6 +30,23 @@ app.use(helmet({
             frameSrc: ["'self'", "https:"],
             mediaSrc: ["'self'", "https:", "data:"],
             workerSrc: ["'self'", "blob:"]
+        }
+    },
+    // Additional security headers
+    strictTransportSecurity: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    },
+    xContentTypeOptions: true,
+    xFrameOptions: { action: 'deny' },
+    xXssProtection: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    permissionsPolicy: {
+        features: {
+            camera: ["'none'"],
+            microphone: ["'none'"],
+            geolocation: ["'none'"]
         }
     }
 }));
@@ -65,6 +82,18 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
     credentials: true
 }));
+
+// HTTPS enforcement in production
+if (process.env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+        // Check if request is secure (HTTPS)
+        if (req.header('x-forwarded-proto') !== 'https') {
+            res.redirect(`https://${req.header('host')}${req.url}`);
+        } else {
+            next();
+        }
+    });
+}
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -154,6 +183,12 @@ app.get('/js/sanitize.js', (req, res) => {
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=31536000');
     res.sendFile(path.join(__dirname, 'js', 'sanitize.js'));
+});
+
+app.get('/js/password-validator.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.sendFile(path.join(__dirname, 'js', 'password-validator.js'));
 });
 
 // Serve main HTML file
